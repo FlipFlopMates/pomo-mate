@@ -1,23 +1,49 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
+import { Timer } from "./timer";
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-  // Use the console to output diagnostic information (console.log) and errors (console.error)
-  // This line of code will only be executed once when your extension is activated
-  console.log('Congratulations, your extension "pomo-mate" is now active!');
+  const workDuration = 25 * 60; // 25分
+  const shortBreakDuration = 5 * 60; // 5分
+  const longBreakDuration = 15 * 60; // 15分
+  const cyclesBeforeLongBreak = 4;
 
-  // The command has been defined in the package.json file
-  // Now provide the implementation of the command with registerCommand
-  // The commandId parameter must match the command field in package.json
+  const command = "pomo-mate.toggleTimer" as const;
+
+  const statusBarItem = vscode.window.createStatusBarItem(
+    vscode.StatusBarAlignment.Right,
+    100,
+  );
+
+  const timer = new Timer(
+    {
+      workDuration,
+      cyclesBeforeLongBreak,
+      longBreakDuration,
+      shortBreakDuration,
+    },
+    (state) => {
+      vscode.window.showInformationMessage(
+        // FIXME:
+        `Pomodoro: ${state} 開始`,
+      );
+    },
+    (text) => {
+      statusBarItem.text = text;
+      statusBarItem.show();
+    },
+  );
+
+  statusBarItem.command = command;
+  context.subscriptions.push(statusBarItem);
+
   const disposable = vscode.commands.registerCommand(
-    "pomo-mate.helloWorld",
+    command,
     () => {
-      // The code you place here will be executed every time your command is executed
-      // Display a message box to the user
-      vscode.window.showInformationMessage("Hello World from pomo-mate!");
+      if (timer.getTimerState() === "Idle") {
+        timer.start();
+      } else {
+        timer.stop();
+      }
     },
   );
 

@@ -12,8 +12,8 @@
   "contributes": {
     "commands": [
       {
-        "command": "pomo-mate.helloWorld",
-        "title": "Hello World"
+        "command": "pomo-mate.toggleTimer",
+        "title": "Start Timer"
       }
     ]
   },
